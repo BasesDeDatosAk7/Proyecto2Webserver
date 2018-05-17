@@ -1,4 +1,4 @@
-const registerDb = require('../db_apis/register.js');
+const userDb = require('../db_apis/user.js');
 
 function getUsuarioFromRec(req) {
   const usuario = {
@@ -12,9 +12,8 @@ function getUsuarioFromRec(req) {
 
 async function post(req, res, next) {
   try {
-    let usuario = getUsuarioFromRec(req);
-    usuario = await registerDb.create(usuario);
-    res.status(201).json(usuario);
+    await userDb.registerUser(getUsuarioFromRec(req));
+    res.status(201).json({ status: "user created" });
   } catch (err) {
     next(err);
   }
