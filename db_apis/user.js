@@ -15,19 +15,61 @@ module.exports.registerUser = registerUser;
 async function login(emp) {
 
   const userLoginSql =
-    `select *
-     from usuario
-     where idUsuario = 0
-     returning email into :email`;
+    `BEGIN
+      :ret := CHECK_USUARIO(:usuario, :clave);
+     END;`;
 
-  const employee = Object.assign({}, emp);
-  console.log(employee);
-  const result = await database.simpleExecute(userLoginSql, employee);
-  console.log(employee);
-  employee.email = result.outBinds.email[0];
-  console.log(employee);
+  const binds = {ret:  { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 40 }};
 
-  return employee;
+  await database.simpleExecute(userLoginSql, binds,
+    function (err, result) {
+      if (err) { console.error(err.message); return; }
+      console.log(result.outBinds);
+    });
+
+  console.log(result.outBinds);
+
+  return result;
 }
 
 module.exports.login = login;
+
+async function enrollUser(emp) {
+  const userEnrollSql = `BEGIN
+                          REGISTER_PARTICIPANTE(:concurso, :nombre);
+                         END;`;
+  const params = Object.assign({},emp);
+  await database.simpleExecute(userEnrollSql,params);
+}
+
+module.exports.enrollUser = enrollUser;
+
+async function resetHints(emp) {
+  const resetHintsSql = `BEGIN
+                          RESET_PISTAS(:nombre);
+                         END;`;
+  const params = Object.assign({},emp);
+  await database.simpleExecute(resetHintsSql,params);
+}
+
+module.exports.resetHints = resetHints;
+
+async function abandonContest(emp) {
+  const abandonContestSql = `BEGIN
+                              SET_ABANDONO(:nombre, :concurso);
+                             END;`;
+  const params = Object.assign({},emp);
+  await database.simpleExecute(abandonContestSql,params);
+}
+
+module.exports.abandonContest = abandonContest;
+
+async function passRiddle(emp) {
+  const passRiddleSql = `BEGIN
+                         CHECK_RESPUESTA(:nombre, :concurso);
+                        END;`;
+  const params = Object.assign({},emp);
+  await database.simpleExecute(passRiddleSql,params);
+}
+
+module.exports.passRiddle = passRiddle;

@@ -3,19 +3,15 @@ const userDb = require('../db_apis/user.js');
 function getParamsFromRec(req) {
   const params = {
     nombre: req.body.nombre,
-    clave: req.body.clave
+    concurso: req.body.concurso
   };
   return params;
 }
 
 async function post(req, res, next) {
   try {
-    const status = await userDb.login(getParamsFromRec(req));
-
-    res.status(201).json(status);
-
-    console.log(res);
-
+    await userDb.abandonContest(getParamsFromRec(req));
+    res.status(201).json({ "status" : "contest abandoned" });
   } catch (err) {
     next(err);
   }

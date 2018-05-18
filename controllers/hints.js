@@ -2,20 +2,15 @@ const userDb = require('../db_apis/user.js');
 
 function getParamsFromRec(req) {
   const params = {
-    nombre: req.body.nombre,
-    clave: req.body.clave
+    nombre: req.body.nombre
   };
   return params;
 }
 
 async function post(req, res, next) {
   try {
-    const status = await userDb.login(getParamsFromRec(req));
-
-    res.status(201).json(status);
-
-    console.log(res);
-
+    await userDb.resetHints(getParamsFromRec(req));
+    res.status(201).json({ "status" : "hits used reset" });
   } catch (err) {
     next(err);
   }
